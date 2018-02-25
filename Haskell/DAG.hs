@@ -12,14 +12,23 @@
 
 
 data Vertice a b= V{name::a,
-                    wV::b} deriving (Eq, Ord)
+                    wV::b} deriving (Ord)
 
 
 data Edge a b=  E {frV::(Vertice a b),
                    toV::(Vertice a b),
-                    wE::b} deriving (Eq, Ord)
+                    wE::b} deriving (Ord)
 
-newtype DAG a b= DAGImpl ([a],[b]) deriving (Eq, Show)
+data DAG a b= DAGImpl ([a],[b]) deriving (Show)
+
+
+instance (Eq a,Eq b) => Eq (Edge a b) where
+    (==) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 == v3) && (v2 == v4)
+    (/=) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 /= v3) || (v2 /= v4)
+
+instance (Eq a,Eq b) => Eq (Vertice a b) where
+    (==) (V a1 b1) (V a2 b2)= (a1 == a2) && (b1 == b2)
+    (/=) (V a1 b1) (V a2 b2)= (a1 /= a2) || (b1 /= b2)
 
 instance (Show a, Show b) => Show (Vertice a b) where
     show  (V a b)= "(V "++ show a ++ " " ++ show b ++ ")"
@@ -27,58 +36,56 @@ instance (Show a, Show b) => Show (Vertice a b) where
 instance (Show a, Show b) => Show (Edge a b) where
     show  (E v1 v2 wt)= "(E "++ show v1 ++ " " ++ show v2 ++ show wt++")"
 
-containsVert :: (Eq a)=> (Vertice a b) -> DAG (Vertice a b) (Edge a b) -> Bool
-containsVert v1 (DAGImpl ([],e)) = False
-containsVert (V n1 wt1) (DAGImpl (((V n2 wt2):xs),e)) = if n1 == n2 then True else containsVert (V n1 wt1) (DAGImpl ((xs),e)) 
+ 
 
 
-noCycle :: (Eq a) => (Vertice a b) -> [(Vertice a b)] -> [(Edge a b)] -> [Bool]
+noCycle :: (Eq a,Eq b) => (Vertice a b) -> [Vertice a b] -> [Edge a b] -> [Bool]
 noCycle _ [] _ = [True]
-noCycle (V n1 wt1) ((V n2 wt2):xs) e 
-    | n1 == n2 = [False]
-    | otherwise = ((noCycle) (V n1 wt1) (getElem (V n2 wt2) e) e) ++ ((noCycle) (V n1 wt1) (xs) e)
+noCycle v1 (v2:xs) e 
+    | v1 == v2 = [False]
+    | otherwise = ((noCycle) v1 (getElem v2 e) e) ++ ((noCycle) v1 (xs) e)
 
-getElem :: (Eq a) => (Vertice a b) -> [(Edge a b)] -> [Vertice a b]
+getElem :: (Eq a,Eq b) => (Vertice a b) -> [Edge a b] -> [Vertice a b]
 getElem _ [] = []
-getElem (V n1 wt1) ((E (V n2 wt2) (V n3 wt3) wt):e) = if n1 == n2 then (V n3 wt3) 
-    : (getElem (V n1 wt1) (e)) else (getElem (V n1 wt1) (e))
+getElem v1 ((E v2 v3 wt):e) = if v1 == v2 then v3 
+    : (getElem v1 (e)) else (getElem v1 (e))
 
 
-topological_ordering :: (Eq a)=> DAG (Vertice a b) (Edge a b) -> [(Vertice a b)] -> [(Vertice a b)]
+topological_ordering :: (Eq a,Eq b)=> DAG (Vertice a b) (Edge a b) -> [(Vertice a b)] -> [(Vertice a b)]
 topological_ordering (DAGImpl ([],e)) _ = []
 topological_ordering  (DAGImpl ((x:xs),e)) (x2:xs2)
         | ((isToEdge) x2 e) == True = (topological_ordering) (DAGImpl ((x:xs),e)) xs2
         | otherwise = x2:(topological_ordering) (DAGImpl (fVertList,fEdgeList)) fVertList
-                    where fVertList = [res |res  <-(x:xs), ((compareVert) res  x2)]
-                          fEdgeList = [res2|res2 <- e    , ((compareEdge) res2 x2)]
+                    where fVertList = [res |res  <-(x:xs), ((/=) res  x2)]
+                          fEdgeList = [res2|res2 <- e    , ((/=) ((getFromVert)res2) x2)]
 
-compareVert :: (Eq a)=> (Vertice a b) -> (Vertice a b) -> Bool
-compareVert (V n1 _) (V n2 _)
-    | n1 /= n2 = True
-    | otherwise = False
+getFromVert :: (Edge a b) -> (Vertice a b)
+getFromVert (E v1 _ _) = v1
 
-
-compareEdge :: (Eq a)=> (Edge a b) ->(Vertice a b) -> Bool
-compareEdge (E (V n2 _) _ _) (V n1 _)
-    | n1 /= n2 = True
-    | otherwise = False
+getToVert :: (Edge a b) -> (Vertice a b)
+getToVert (E _ v2 _) = v2
 
 
-empty :: DAG (Vertice a b) (Edge a b)
+
+
+empty :: DAG a b
 empty = DAGImpl ([],[])
 
-add_vertex :: (Eq a)=> (Vertice a b) -> DAG (Vertice a b) (Edge a b)-> DAG (Vertice a b) (Edge a b)
+add_vertex :: (Eq a,Eq b)=> (Vertice a b) -> DAG (Vertice a b) (Edge a b)-> DAG (Vertice a b) (Edge a b)
 add_vertex v1 (DAGImpl (v,e)) = if ((containsVert) v1 (DAGImpl (v,e))) then (DAGImpl (v,e)) else DAGImpl ((v1:v),e)   
 
-add_edge :: (Eq a)=> (Edge a b) -> DAG (Vertice a b) (Edge a b)-> DAG (Vertice a b) (Edge a b)
-add_edge  (E v1 v2 wt) (DAGImpl (v,e)) = if ((containsVert) v1 (DAGImpl (v,e))) && ((containsVert) v2 (DAGImpl (v,e))) && containsTrue(((noCycle) v1 (getElem v2 e) e))
+add_edge :: (Eq a,Eq b)=> (Edge a b) -> DAG (Vertice a b) (Edge a b)-> DAG (Vertice a b) (Edge a b)
+add_edge  (E v1 v2 wt) (DAGImpl (v,e)) = if ((containsVert) v1 (DAGImpl (v,e))) && ((containsVert) v2 (DAGImpl (v,e))) 
+                                                && containsTrue(((noCycle) v1 (getElem v2 e) e))
                                         then DAGImpl (v,((E v1 v2 wt):e))  
                                         else DAGImpl (v,e)      
 
 
-
-
-
+containsVert ::(Eq a,Eq b) => a -> DAG a b -> Bool
+containsVert v1 (DAGImpl ([],e)) = False
+containsVert v1 (DAGImpl ((v2:xs),e)) = if v1 == v2 
+                                        then True 
+                                        else containsVert v1 (DAGImpl ((xs),e)) 
 
 
 containsTrue :: [Bool] -> Bool
@@ -92,20 +99,23 @@ getVertList :: DAG (Vertice a b) (Edge a b) -> [(Vertice a b)]
 getVertList (DAGImpl (v,_)) = v
 
 
-isFromEdge :: (Eq a)=> (Vertice a b) -> [(Edge a b)] -> Bool
+isFromEdge :: (Eq a,Eq b)=> (Vertice a b) -> [(Edge a b)] -> Bool
 isFromEdge _ [] = False
 isFromEdge (V n1 wt1) ((E (V n2 wt2) (V n3 wt3) wt):xs)
     | n1 == n2 = True
     | otherwise = isFromEdge (V n1 wt1) xs
 
 
-isToEdge :: (Eq a)=> (Vertice a b) -> [(Edge a b)] -> Bool
+isToEdge :: (Eq a,Eq b) => Vertice a b -> [Edge a b] -> Bool
 isToEdge _ [] = False
-isToEdge (V n1 wt1) ((E (V n2 wt2) (V n3 wt3) wt):xs)
-    | n1 == n3 = True
-    | otherwise = isToEdge (V n1 wt1) xs
+isToEdge v1 ((E v2 v3 wt):xs)
+    | v1 == v3 = True
+    | otherwise = isToEdge v1 xs
 
+--weight_of_longest_path :: DAG (Vertice a b) (Edge a b)  -> (Vertice a b) -> (Vertice a b) -> ((Vertice a b) -> (Vertice a b)) -> ((Vertice a b) -> (Vertice a b)) -> b
 --weight_of_longest_path
+
+
 
 {-
 empty :: Stack a
@@ -120,6 +130,20 @@ isEmpty (StackImpl s) = null s
 push x (StackImpl s) = StackImpl (x:s)
 top (StackImpl s) = head s
 pop (StackImpl (s:ss)) = (s,StackImpl ss)
+
+
+
+compareVert :: (Eq a,Eq b)=> (Vertice a b) -> (Vertice a b) -> Bool
+compareVert (V n1 _) (V n2 _)
+    | n1 /= n2 = True
+    | otherwise = False
+
+compareEdge :: (Eq a,Eq b)=> (Edge a b) ->(Vertice a b) -> Bool
+compareEdge (E (V n2 _) _ _) (V n1 _)
+    | n1 /= n2 = True
+    | otherwise = False
+
+
 ################################# TEST CODE ####################################
 let v1 = (V 'a' 1)
 let v2 = (V 'b' 2)
