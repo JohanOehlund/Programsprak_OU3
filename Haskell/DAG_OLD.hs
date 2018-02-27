@@ -11,15 +11,16 @@
 
 
 
-data Vertice a= V{name::Integer,
-                    wV::a} deriving (Ord)
+data Vertice a b= V{name::a,
+                    wV::b} deriving (Ord)
 
 
 data Edge a b=  E {frV::(Vertice a b),
                    toV::(Vertice a b),
                     wE::b} deriving (Ord)
 
-data DAG a b= DAGImpl ([Vertice a],[b]) deriving (Show)
+data DAG a b= DAGImpl ([a],[b]) deriving (Show)
+
 
 instance (Eq a,Eq b) => Eq (Edge a b) where
     (==) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 == v3) && (v2 == v4)
@@ -58,7 +59,6 @@ getToVert (E _ v2 _) = v2
 empty :: DAG a b
 empty = DAGImpl ([],[])
 
---returns tuple with new dag and node idetifier.
 add_vertex :: (Eq a,Eq b)=> (Vertice a b) -> DAG (Vertice a b) (Edge a b)-> DAG (Vertice a b) (Edge a b)
 add_vertex v1 (DAGImpl (v,e)) = if ((containsVert) v1 (DAGImpl (v,e))) then error "Vertex already in DAG." else DAGImpl ((v1:v),e)   
 
@@ -171,3 +171,4 @@ topological_ordering dag12 (getVertList dag12) []
 
 https://wiki.haskell.org/Abstract_data_type
 -}
+
