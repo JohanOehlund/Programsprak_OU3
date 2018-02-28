@@ -21,30 +21,31 @@ data Edge a b=  E {frV::(Vertex a),
 data DAG a b= DAGImpl [Vertex a] [b] deriving (Show)
 
 instance (Eq a,Eq b) => Eq (Edge a b) where
-    (==) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 == v3) && (v2 == v4)
-    (/=) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 /= v3) || (v2 /= v4)
+    (==) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 == v3)
+    (/=) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 /= v3)
 
 instance (Eq a) => Eq (Vertex a) where
-    (==) (V a1 b1) (V a2 b2)= (a1 == a2) && (b1 == b2)
-    (/=) (V a1 b1) (V a2 b2)= (a1 /= a2) || (b1 /= b2)
+    (==) (V a1 b1) (V a2 b2)= (a1 == a2)
+    (/=) (V a1 b1) (V a2 b2)= (a1 /= a2) 
 
 instance (Show a) => Show (Vertex a) where
     show  (V a b)= "(V "++ show a ++ " " ++ show b ++ ")"
 
 instance (Show a, Show b) => Show (Edge a b) where
-    show  (E v1 v2 wt)= "(E "++ show v1 ++ " " ++ show v2 ++ show wt++")"
+    show  (E v1 v2 wt)= "(E "++ show v1 ++ " " ++ show v2 ++" "++ show wt++")"
 
  
-
+{-
+FUNKAR INTE!!!!!!!!!
 topological_ordering :: (Eq a, Eq b) => DAG a (Edge a b) -> [Vertex a] -> [Vertex a] -> [Vertex a]
 topological_ordering (DAGImpl [] _) _ output  = output
-topological_ordering (DAGImpl ((V n1 wt1):xs) _) [] _  = []
-topological_ordering (DAGImpl ((V n1 wt1):xs) e) ((V n2 wt2):xs2) output
-        | ((isToEdge) (V n2 wt2) e) == True = (topological_ordering) (DAGImpl ((V n1 wt1):xs) e) xs2 ((V n2 wt2):output)
+topological_ordering (DAGImpl _ _) [] _  = []
+topological_ordering (DAGImpl v e) (x2:xs2) output
+        | ((isToEdge) x2 e) == True = (topological_ordering) (DAGImpl v e) xs2 (x2:output)
         | otherwise = (topological_ordering) (DAGImpl fVertList fEdgeList) fVertList output
-                    where fVertList = [res |res  <-((V n1 wt1):xs), ((/=) res  (V n2 wt2))]
-                          fEdgeList = [res2|res2 <- e    , ((/=) ((getFromVert)res2) (V n2 wt2))]
-
+                    where fVertList = [res |res  <- v     , ((/=) res  x2)]
+                          fEdgeList = [res2|res2 <- e     , ((/=) ((getFromVert)res2) x2)]
+-}
 
 isToEdge :: (Eq a,Eq b) => (Vertex a) -> [Edge a b] -> Bool
 isToEdge _ [] = False
@@ -65,7 +66,7 @@ empty = DAGImpl [] []
 --returns tuple with new dag and node idetifier.
 add_vertex :: DAG a b -> a -> (DAG a b, VertID)
 add_vertex (DAGImpl v e) wt = ((DAGImpl ((V newID wt):v) e),newID)
-            where newID = getNewVID v 0
+            where newID = getNewVID v 1
  
 getNewVID :: [Vertex a] -> VertID -> VertID
 getNewVID vList num 
@@ -76,16 +77,16 @@ containsID :: [Vertex a] -> VertID -> Bool
 containsID [] _ = False
 containsID ((V id1 _):xs) id2 = if id1==id2 then True else containsID xs id2
 
-{-
---add_edge :: (Eq a, Eq b) => DAG a (Edge a b) -> VertID -> VertID -> b -> DAG a (Edge a b)
+
+add_edge ::(Eq a,Eq b) => DAG a (Edge a b) -> VertID -> VertID -> b -> DAG a (Edge a b)
 add_edge (DAGImpl v e) id1 id2 wt = 
-                if ((containsVert) (DAGImpl v e) id1) && ((containsVert) (DAGImpl v e) id2) 
-                   -- && (length((topological_ordering) (DAGImpl v ((E id1 id2 wt):e)) v []) > 0)
+                if ((notContainsVert) (DAGImpl v e) id1) && ((notContainsVert) (DAGImpl v e) id2) 
+                    && (length((topological_ordering) (DAGImpl v ((E getV1 getV2 wt):e)) v []) > 0)
                 then (DAGImpl v ((E getV1 getV2 wt):e))
                 else error "Can't add edge, creats a cycle."
-                where getV1 = getVert id1
-                      getV2 = getVert id2
--}
+                    where   getV1 = getVert (DAGImpl v e) id1
+                            getV2 = getVert (DAGImpl v e) id2
+
 
 getVert :: DAG a b -> VertID -> Vertex a
 getVert (DAGImpl [] e) _ = error "No Vertex found!"
@@ -93,14 +94,18 @@ getVert (DAGImpl v e) id1
     | ((getVertId)$(head) v) == id1 = (head) v
     | otherwise = ((getVert) (DAGImpl ((tail) v) e) id1)
 
-containsVert :: DAG a b -> VertID -> Bool
-containsVert (DAGImpl [] e) id1 = False
-containsVert (DAGImpl v e)  id1 = if ((getVertId)$(head) v) == id1
+notContainsVert :: DAG a b -> VertID -> Bool
+notContainsVert (DAGImpl [] e) id1 = False
+notContainsVert (DAGImpl v e)  id1 = if ((getVertId)$(head) v) == id1
                                     then True 
-                                    else containsVert (DAGImpl ((tail) v) e) id1
+                                    else notContainsVert (DAGImpl ((tail) v) e) id1
 
 getVertId :: (Vertex a) -> Integer
 getVertId (V id1 _)= id1
+
+getVertList :: DAG a b -> [(Vertex a)]
+getVertList (DAGImpl v _) = v
+
 
 {-
 
@@ -187,12 +192,12 @@ let dag4 = add_vertex (fst dag3) 4
 let dag5 = add_vertex (fst dag4) 5 
 let dag6 = add_vertex (fst dag5) 6 
 
-let dag7 =  add_edge dag6 (snd dag1) (snd dag2) 10
-let dag8 =  add_edge (E v2 v4 11) dag7
-let dag9 =  add_edge (E v4 v5 12) dag8
-let dag10 = add_edge (E v3 v6 13) dag9
-let dag11 = add_edge (E v1 v4 15) dag10
-let dag12 = add_edge (E v5 v3 15) dag11
+let dag7  =  add_edge (fst dag6)  (snd dag1) (snd dag2) 10
+let dag8  =  add_edge      dag7   (snd dag2) (snd dag4) 11
+let dag9  =  add_edge      dag8   (snd dag4) (snd dag5) 12
+let dag10 =  add_edge      dag9   (snd dag3) (snd dag6) 13
+let dag11 =  add_edge      dag10  (snd dag1) (snd dag4) 14
+let dag12 =  add_edge      dag11  (snd dag5) (snd dag3) 15
 
 topological_ordering dag12 (getVertList dag12) []
 ################################################################################
