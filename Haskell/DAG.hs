@@ -8,61 +8,70 @@
 --
 -- Project for the course Programspråk VT18, Umeå universitet.
 --------------------------------------------------------------------------------
-
-
-
-data Vertice a= V{name::Integer,
+data Vertex a= V{name::Integer,
                     wV::a} deriving (Ord)
 
 
-data Edge a b=  E {frV::(Vertice a b),
-                   toV::(Vertice a b),
+data Edge a b=  E {frV::(Vertex a),
+                   toV::(Vertex a),
                     wE::b} deriving (Ord)
 
-data DAG a b= DAGImpl ([Vertice a],[b]) deriving (Show)
+data DAG a b= DAGImpl [Vertex a] [b] deriving (Show)
 
 instance (Eq a,Eq b) => Eq (Edge a b) where
     (==) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 == v3) && (v2 == v4)
     (/=) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 /= v3) || (v2 /= v4)
 
-instance (Eq a,Eq b) => Eq (Vertice a b) where
+instance (Eq a) => Eq (Vertex a) where
     (==) (V a1 b1) (V a2 b2)= (a1 == a2) && (b1 == b2)
     (/=) (V a1 b1) (V a2 b2)= (a1 /= a2) || (b1 /= b2)
 
-instance (Show a, Show b) => Show (Vertice a b) where
+instance (Show a) => Show (Vertex a) where
     show  (V a b)= "(V "++ show a ++ " " ++ show b ++ ")"
 
 instance (Show a, Show b) => Show (Edge a b) where
     show  (E v1 v2 wt)= "(E "++ show v1 ++ " " ++ show v2 ++ show wt++")"
 
  
-
-topological_ordering :: (Eq a,Eq b)=> DAG (Vertice a b) (Edge a b) -> [(Vertice a b)] -> [(Vertice a b)] -> [(Vertice a b)]
+{-
+topological_ordering :: (Eq a,Eq b)=> DAG (Vertex a) (Edge a b) -> [(Vertex a)] -> [(Vertex a)] -> [(Vertex a)]
 topological_ordering (DAGImpl ([],_)) _ output  = output
-topological_ordering (DAGImpl (v,_)) [] _  = []
-topological_ordering (DAGImpl ((x:xs),e)) (x2:xs2) output
-        | ((isToEdge) x2 e) == True = (topological_ordering) (DAGImpl ((x:xs),e)) xs2 (x2:output)
+topological_ordering (DAGImpl (((V n1 wt1):xs),_)) [] _  = []
+topological_ordering (DAGImpl (((V n1 wt1):xs),e)) ((V n2 wt2):xs2) output
+        | ((isToEdge) (V n2 wt2) e) == True = (topological_ordering) (DAGImpl (((V n1 wt1):xs),e)) xs2 ((V n2 wt2):output)
         | otherwise = (topological_ordering) (DAGImpl (fVertList,fEdgeList)) fVertList output
-                    where fVertList = [res |res  <-(x:xs), ((/=) res  x2)]
-                          fEdgeList = [res2|res2 <- e    , ((/=) ((getFromVert)res2) x2)]
-
-getFromVert :: (Edge a b) -> (Vertice a b)
+                    where fVertList = [res |res  <-((V n1 wt1):xs), ((/=) res  (V n2 wt2))]
+                          fEdgeList = [res2|res2 <- e    , ((/=) ((getFromVert)res2) (V n2 wt2))]
+-}
+getFromVert :: (Edge a b) -> (Vertex a)
 getFromVert (E v1 _ _) = v1
 
-getToVert :: (Edge a b) -> (Vertice a b)
+getToVert :: (Edge a b) -> (Vertex a)
 getToVert (E _ v2 _) = v2
 
 
 
 
 empty :: DAG a b
-empty = DAGImpl ([],[])
+empty = DAGImpl [] []
 
 --returns tuple with new dag and node idetifier.
-add_vertex :: (Eq a,Eq b)=> (Vertice a b) -> DAG (Vertice a b) (Edge a b)-> DAG (Vertice a b) (Edge a b)
-add_vertex v1 (DAGImpl (v,e)) = if ((containsVert) v1 (DAGImpl (v,e))) then error "Vertex already in DAG." else DAGImpl ((v1:v),e)   
+add_vertex :: DAG a b -> a -> (DAG a b, Integer)
+add_vertex (DAGImpl v e) wt = ((DAGImpl ((V newID wt):v) e),newID)
+            where newID = getNewVID v 0
+ 
+getNewVID :: [Vertex a] -> Integer -> Integer
+getNewVID vList num 
+    | (containsID) vList num = getNewVID vList (num+1)
+    | otherwise = num 
 
-add_edge :: (Eq a,Eq b)=> (Edge a b) -> DAG (Vertice a b) (Edge a b)-> DAG (Vertice a b) (Edge a b)
+containsID :: [Vertex a] -> Integer -> Bool
+containsID [] _ = False
+containsID ((V id1 _):xs) id2 = if id1==id2 then True else containsID xs id2
+
+{-
+
+add_edge :: (Eq a,Eq b)=> (Edge a b) -> DAG (Vertex a) (Edge a b)-> DAG (Vertex a) (Edge a b)
 add_edge  (E v1 v2 wt) (DAGImpl (v,e)) = 
                 if ((containsVert) v1 (DAGImpl (v,e))) && ((containsVert) v2 (DAGImpl (v,e))) 
                     && (length((topological_ordering) (DAGImpl (v,((E v1 v2 wt):e))) v []) > 0)
@@ -80,32 +89,32 @@ containsTrue :: [Bool] -> Bool
 containsTrue list = if True `elem` list then True else False
 
 
-getEdgeList :: DAG (Vertice a b) (Edge a b) -> [(Edge a b)]
+getEdgeList :: DAG (Vertex a) (Edge a b) -> [(Edge a b)]
 getEdgeList (DAGImpl (_,e)) = e
 
-getVertList :: DAG (Vertice a b) (Edge a b) -> [(Vertice a b)]
+getVertList :: DAG (Vertex a) (Edge a b) -> [(Vertex a)]
 getVertList (DAGImpl (v,_)) = v
 
 
-isFromEdge :: (Eq a,Eq b)=> (Vertice a b) -> [(Edge a b)] -> Bool
+isFromEdge :: (Eq a,Eq b)=> (Vertex a) -> [(Edge a b)] -> Bool
 isFromEdge _ [] = False
 isFromEdge (V n1 wt1) ((E (V n2 wt2) (V n3 wt3) wt):xs)
     | n1 == n2 = True
     | otherwise = isFromEdge (V n1 wt1) xs
 
 
-isToEdge :: (Eq a,Eq b) => Vertice a b -> [Edge a b] -> Bool
+isToEdge :: (Eq a,Eq b) => (Vertex a) -> [Edge a b] -> Bool
 isToEdge _ [] = False
-isToEdge v1 ((E v2 v3 wt):xs)
-    | v1 == v3 = True
-    | otherwise = isToEdge v1 xs
+isToEdge (V n1 wt1) ((E _ (V n2 wt2) wt):xs)
+    | n1 == n2 = True
+    | otherwise = isToEdge (V n1 wt1) xs
 
 --weight_of_longest_path :: DAG (Vertice a b) (Edge a b)  -> (Vertice a b) -> (Vertice a b) -> ((Vertice a b) -> (Vertice a b)) -> ((Vertice a b) -> (Vertice a b)) -> b
 --weight_of_longest_path
 
 
 
-{-
+
 empty :: Stack a
 isEmpty :: Stack a -> Bool
 push :: a -> Stack a -> Stack a
