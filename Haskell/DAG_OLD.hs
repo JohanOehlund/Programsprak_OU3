@@ -42,8 +42,8 @@ topological_ordering :: (Eq a,Eq b)=> DAG (Vertice a b) (Edge a b) -> [(Vertice 
 topological_ordering (DAGImpl ([],_)) _ output  = output
 topological_ordering (DAGImpl (v,_)) [] _  = []
 topological_ordering (DAGImpl ((x:xs),e)) (x2:xs2) output
-        | ((isToEdge) x2 e) == True = (topological_ordering) (DAGImpl ((x:xs),e)) xs2 (x2:output)
-        | otherwise = (topological_ordering) (DAGImpl (fVertList,fEdgeList)) fVertList output
+        | ((isToEdge) x2 e) == True = (topological_ordering) (DAGImpl ((x:xs),e)) xs2 output
+        | otherwise = (topological_ordering) (DAGImpl (fVertList,fEdgeList)) fVertList (x2:output)
                     where fVertList = [res |res  <-(x:xs), ((/=) res  x2)]
                           fEdgeList = [res2|res2 <- e    , ((/=) ((getFromVert)res2) x2)]
 
