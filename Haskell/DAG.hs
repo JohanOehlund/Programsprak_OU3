@@ -41,8 +41,8 @@ topological_ordering (DAGImpl _ _) [] _  = []
 topological_ordering (DAGImpl v e) (x2:xs2) output
         | ((isToEdge) x2 e) == True = (topological_ordering) (DAGImpl v e) xs2 output
         | otherwise = (topological_ordering) (DAGImpl fVertList fEdgeList) fVertList (x2:output)
-                    where fVertList = [res |res  <- v     , ((/=) res  x2)]
-                          fEdgeList = [res2|res2 <- e     , ((/=) res2 x2)]
+                    where fVertList = [res |res  <- v , ((/=) res  x2)]
+                          fEdgeList = [res2|res2 <- e , ((/=) ((getFromVert)res2) x2)]
 
 
 isToEdge :: (Eq a,Eq b) => (Vertex a) -> [Edge a b] -> Bool
