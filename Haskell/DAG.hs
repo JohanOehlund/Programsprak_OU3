@@ -8,22 +8,26 @@
 --
 -- Project for the course Programspråk VT18, Umeå universitet.
 --------------------------------------------------------------------------------
+ {-# LANGUAGE FlexibleInstances #-}
+ {-# LANGUAGE MultiParamTypeClasses #-}
+
 import Data.Char
 import Data.List
 import Data.Typeable
-import Data.Either
+--import Data.Either
 
 type VertID= Integer
 
 data Vertex a= V{name::Integer,
-                    wV::a} deriving (Ord)
+                    wV::a} 
 
 
 data Edge a =  E {frV::(Vertex a),
                    toV::(Vertex a),
-                    wE::a} deriving (Ord)
+                    wE::a} 
 
 data DAG a= DAGImpl [Vertex a] [Edge a] deriving (Show)
+
 
 instance (Eq a) => Eq (Edge a) where
     (==) (E v1 v2 wt1) (E v3 v4 wt2) = (v1 == v3) && (v2 == v4)
@@ -33,11 +37,26 @@ instance (Eq a) => Eq (Vertex a) where
     (==) (V a1 b1) (V a2 b2)= (a1 == a2)
     (/=) (V a1 b1) (V a2 b2)= (a1 /= a2) 
 
+instance (Ord a) => Ord (Vertex a) where
+    (>=) (V a1 b1) (V a2 b2)= (>=) b1 b2
+    (<)  (V a1 b1) (V a2 b2)= (<) b1 b2
+    (<=) (V a1 b1) (V a2 b2)= (<=) b1 b2
+    compare (V a1 b1) (V a2 b2)= compare b1 b2
+
+instance (Ord a) => Ord (Edge a) where
+    (>=) (E v1 v2 wt1) (E v3 v4 wt2)  = (>=) wt1 wt2
+    (<=) (E v1 v2 wt1) (E v3 v4 wt2)  = (<=)  wt1 wt2
+    (<)  (E v1 v2 wt1) (E v3 v4 wt2)  = (<)  wt1 wt2
+    compare (E v1 v2 wt1) (E v3 v4 wt2)  = compare  wt1 wt2
+
+
 instance (Show a) => Show (Vertex a) where
     show  (V a b)= "(V "++ show a ++ " " ++ show b ++ ")"
 
 instance (Show a) => Show (Edge a) where
     show  (E v1 v2 wt)= "(E "++ show v1 ++ " " ++ show v2 ++" "++ show wt++")"
+
+
 
 topological_ordering :: Eq a => DAG a -> [Vertex a] -> [Vertex a] -> [Vertex a]
 topological_ordering (DAGImpl [] _) _ output  = output
@@ -111,8 +130,9 @@ getEdgeList (DAGImpl _ e) = e
 nodeWT :: DAG a-> VertID -> a
 nodeWT dag id1=  getVertWT $ getVert dag id1 
 
-edgeWT :: (Num a, Eq a) => DAG a -> Vertex a -> Vertex a -> a
+edgeWT :: ( Eq a) => DAG a -> Vertex a -> Vertex a -> a
 edgeWT dag v1 v2 = getEdgeWT $ getEdge dag v1 v2
+
 
 getVert :: DAG a-> VertID -> Vertex a
 getVert (DAGImpl [] e) _ = error "No Vertex found!"
@@ -120,7 +140,7 @@ getVert (DAGImpl v e) id1
     | ((getVertId)$(head) v) == id1 = (head) v
     | otherwise = ((getVert) (DAGImpl ((tail) v) e) id1)
 
-getEdge :: (Eq a,Num a) => DAG a -> Vertex a -> Vertex a -> Edge a
+getEdge :: (Eq a) => DAG a -> Vertex a -> Vertex a -> Edge a
 getEdge (DAGImpl v []) _ _ = error "No edge found in getEdge!"
 getEdge (DAGImpl v ((E v1 v2 wt):xs)) v3 v4
     | v1 == v3 && v2 == v4 = (E v1 v2 wt)
@@ -133,29 +153,25 @@ getVertWT (V _ wt)= wt
 getEdgeWT :: (Edge a) -> a
 getEdgeWT (E _ _ wt)= wt
 
-
-weight_of_longest_path dag id1 id2 f g = last $ sort(test dag paths f g)
-       -- | show (typeOf (getVertWT vert1)) == "Integer" = Left ((test dag paths f g))
-       -- | show (typeOf (getVertWT vert1)) == "Char" = Right (test2 dag paths f g) 
+weight_of_longest_path :: (Ord a1, Eq a) => DAG a -> VertID -> VertID
+        -> t -> t1 -> (DAG a -> [Vertex a] -> t -> t1 -> a1) -> a1
+weight_of_longest_path dag id1 id2 f g h = last $ sort(test dag paths f g h)
             where 
                 paths = (clrPaths) (getPaths dag vert2 getNeigh [vert1])
                 vert1 = getVert dag id1
                 vert2 = getVert dag id2
                 getNeigh = getToVerts vert1 (getEdgeList dag) 
 
-test2 dag [] f g = []
-test2 dag (x:xs) f g = calcCharWeight  dag x f g : test2 dag xs f g 
-
 
 --test :: (Typeable a1, Num [a]) => t -> [[a1]] -> (a1 -> [a]) -> (t -> a1 -> a1 -> [a]) -> [[a]]
-test dag [] f g = []
-test dag (x:xs) f g = calcIntWeight  dag x f g : test dag xs f g 
+test dag [] f g h = []
+test dag (x:xs) f g h = h dag x f g : test dag xs f g h
 
-calcCharWeight :: t -> [a1] -> (a1 -> [a]) -> (t -> a1 -> a1 -> [a]) -> [a]
-calcCharWeight dag (x:[]) f g = (f x)
-calcCharWeight dag (x:x1:xs) f g = ((f x) ++ (g dag x x1)) ++ calcCharWeight dag (x1:xs) f g
+calcCharWeight :: t -> [a1] -> (a1 -> a) -> (t -> a1 -> a1 -> a) -> [a]
+calcCharWeight dag (x:[]) f g = [(f x)]
+calcCharWeight dag (x:x1:xs) f g = ([(f x)] ++ [(g dag x x1)]) ++ calcCharWeight dag (x1:xs) f g
 
-calcIntWeight :: Num a => t -> [a1] -> (a1 -> a) -> (t -> a1 -> a1 -> a) -> a
+--calcIntWeight :: Num a => t -> [a1] -> (a1 -> a) -> (t -> a1 -> a1 -> a) -> a
 calcIntWeight dag (x:[]) f g = (f x)
 calcIntWeight dag (x:x1:xs) f g = (f x) + (g dag x x1) + calcIntWeight dag (x1:xs) f g
 
@@ -192,7 +208,7 @@ compareEdge (E (V n2 _) _ _) (V n1 _)
 test dag13 [(V 2 2)] (V 1 1) (V 2 2)
 test dag13 [(V 2 2),(V 4 4)] (V 1 1) (V 4 4)
 
-################################# TEST CODE ####################################
+##############################TEST CODE NUM ####################################
 
 let dag1 = add_vertex empty      1 
 let dag2 = add_vertex (fst dag1) 2 
@@ -201,50 +217,49 @@ let dag4 = add_vertex (fst dag3) 4
 let dag5 = add_vertex (fst dag4) 5 
 let dag6 = add_vertex (fst dag5) 6 
 
-let dag7  =  add_edge (fst dag6)  (snd dag1) (snd dag2) 10
+let dag7  =  add_edge (fst dag6)  (snd dag1) (snd dag2) 100
 let dag8  =  add_edge      dag7   (snd dag2) (snd dag4) 11
-let dag9  =  add_edge      dag8   (snd dag4) (snd dag5) 12
+let dag9  =  add_edge      dag8   (snd dag4) (snd dag5) 122
 let dag10 =  add_edge      dag9   (snd dag3) (snd dag6) 13
 let dag11 =  add_edge      dag10  (snd dag1) (snd dag4) 14
 let dag12 =  add_edge      dag11  (snd dag5) (snd dag3) 15
 let dag13 =  add_edge      dag12  (snd dag2) (snd dag5) 15
 
-let x = clrPaths (getPaths dag13 (V 5 5) [(V 2 2), (V 4 4)] [(V 1 1)])
-calcIntWeight dag13 (head x) (getVertWT) (edgeWT)
-weight_of_longest_path dag13 1 5 (getVertWT) (edgeWT)
+
+weight_of_longest_path dag13 1 5 (getVertWT) (edgeWT) (calcIntWeight)
 
 getPaths dag13 (getToVerts (getVert dag13 1) (getEdgeList dag13)) (V 5 5) 
 
 topological_ordering dag13 (getVertList dag13) []
 
-weight_of_longest_path dag12 1 2 (nodeWT) (edgeWT)
+let x = clrPaths (getPaths dag13 (V 5 5) [(V 2 2), (V 4 4)] [(V 1 1)])
+calcIntWeight dag13 (head x) (getVertWT) (edgeWT)
 
 
 ################################################################################
 
-################################# TEST CODE OLD ####################################
-let v1 = (V 'a' 1)
-let v2 = (V 'b' 2)
-let v3 = (V 'c' 3)
-let v4 = (V 'd' 4)
-let v5 = (V 'e' 5)
-let v6 = (V 'f' 6)
+##############################TEST CODE Char####################################
 
-let dag1 = add_vertex v1 empty 
-let dag2 = add_vertex v2 dag1 
-let dag3 = add_vertex v3 dag2 
-let dag4 = add_vertex v4 dag3
-let dag5 = add_vertex v5 dag4
-let dag6 = add_vertex v6 dag5
+let dag1 = add_vertex empty      'a' 
+let dag2 = add_vertex (fst dag1) 'd' 
+let dag3 = add_vertex (fst dag2) 'z' 
+let dag4 = add_vertex (fst dag3) 'h' 
+let dag5 = add_vertex (fst dag4) 'q' 
+let dag6 = add_vertex (fst dag5) 'j' 
 
-let dag7 =  add_edge (E v1 v2 10) dag6
-let dag8 =  add_edge (E v2 v4 11) dag7
-let dag9 =  add_edge (E v4 v5 12) dag8
-let dag10 = add_edge (E v3 v6 13) dag9
-let dag11 = add_edge (E v1 v4 15) dag10
-let dag12 = add_edge (E v5 v3 15) dag11
+let dag7  =  add_edge (fst dag6)  (snd dag1) (snd dag2) '1'
+let dag8  =  add_edge      dag7   (snd dag2) (snd dag4) 'c'
+let dag9  =  add_edge      dag8   (snd dag4) (snd dag5) 'a'
+let dag10 =  add_edge      dag9   (snd dag3) (snd dag6) 'A'
+let dag11 =  add_edge      dag10  (snd dag1) (snd dag4) 'V'
+let dag12 =  add_edge      dag11  (snd dag5) (snd dag3) 'u'
+let dag13 =  add_edge      dag12  (snd dag2) (snd dag5) 'm'
 
-topological_ordering dag12 (getVertList dag12) []
+weight_of_longest_path dag13 1 5 (getVertWT) (edgeWT) (calcCharWeight)
+
+
+
+
 ################################################################################
 
 

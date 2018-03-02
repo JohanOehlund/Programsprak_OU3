@@ -1,5 +1,7 @@
-module Stack (Stack, emptySTACK, isEmpty, push, top, pop) where
- 
+--module Stack (Stack, emptySTACK, isEmpty, push, top, pop) where
+ {-# LANGUAGE DeriveAnyClass #-}
+
+
 emptySTACK :: Stack a
 isEmpty :: Stack a -> Bool
 push :: a -> Stack a -> Stack a
@@ -36,4 +38,3 @@ test num item st
     | num > 0 = ((test) (num-1) item (push item st))
     | num < 0 = ((test) (num+1) item (push item st))
     | num== 0 = st
-
