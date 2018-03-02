@@ -8,9 +8,7 @@
 --
 -- Project for the course Programspråk VT18, Umeå universitet.
 --------------------------------------------------------------------------------
- {-# LANGUAGE FlexibleInstances #-}
- {-# LANGUAGE MultiParamTypeClasses #-}
-
+import TestDAG
 import Data.Char
 import Data.List
 import Data.Typeable
@@ -153,8 +151,8 @@ getVertWT (V _ wt)= wt
 getEdgeWT :: (Edge a) -> a
 getEdgeWT (E _ _ wt)= wt
 
-weight_of_longest_path :: (Ord a1, Eq a) => DAG a -> VertID -> VertID
-        -> t -> t1 -> (DAG a -> [Vertex a] -> t -> t1 -> a1) -> a1
+--weight_of_longest_path :: (Ord a1, Eq a) => DAG a -> VertID -> VertID
+  --      -> t -> t1 -> (DAG a -> [Vertex a] -> t -> t1 -> a1) -> a1
 weight_of_longest_path dag id1 id2 f g h = last $ sort(test dag paths f g h)
             where 
                 paths = (clrPaths) (getPaths dag vert2 getNeigh [vert1])
@@ -167,9 +165,14 @@ weight_of_longest_path dag id1 id2 f g h = last $ sort(test dag paths f g h)
 test dag [] f g h = []
 test dag (x:xs) f g h = h dag x f g : test dag xs f g h
 
+
 calcCharWeight :: t -> [a1] -> (a1 -> a) -> (t -> a1 -> a1 -> a) -> [a]
 calcCharWeight dag (x:[]) f g = [(f x)]
 calcCharWeight dag (x:x1:xs) f g = ([(f x)] ++ [(g dag x x1)]) ++ calcCharWeight dag (x1:xs) f g
+
+--calcStringWeight :: t -> [a1] -> (a1 -> a) -> (t -> a1 -> a1 -> a) -> [a]
+calcStringWeight dag (x:[]) f g = (f x)
+calcStringWeight dag (x:x1:xs) f g = ((f x) ++ (g dag x x1)) ++ calcStringWeight dag (x1:xs) f g
 
 --calcIntWeight :: Num a => t -> [a1] -> (a1 -> a) -> (t -> a1 -> a1 -> a) -> a
 calcIntWeight dag (x:[]) f g = (f x)
