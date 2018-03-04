@@ -1,7 +1,5 @@
 public class Edge {
 
-
-
     private Vertex frmVert;
     private Vertex toVert;
     private Object weight;
