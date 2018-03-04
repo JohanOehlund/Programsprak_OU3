@@ -153,7 +153,7 @@ getEdgeWT (E _ _ wt)= wt
 
 --weight_of_longest_path :: (Ord a1, Eq a) => DAG a -> VertID -> VertID
   --      -> t -> t1 -> (DAG a -> [Vertex a] -> t -> t1 -> a1) -> a1
-weight_of_longest_path dag id1 id2 f g h = last $ sort(test dag paths f g h)
+weight_of_longest_path dag id1 id2 f g h = last $ sort(weight_of_longest_path' dag paths f g h)
             where 
                 paths = (clrPaths) (getPaths dag vert2 getNeigh [vert1])
                 vert1 = getVert dag id1
@@ -162,8 +162,8 @@ weight_of_longest_path dag id1 id2 f g h = last $ sort(test dag paths f g h)
 
 
 --test :: (Typeable a1, Num [a]) => t -> [[a1]] -> (a1 -> [a]) -> (t -> a1 -> a1 -> [a]) -> [[a]]
-test dag [] f g h = []
-test dag (x:xs) f g h = h dag x f g : test dag xs f g h
+weight_of_longest_path' dag [] f g h = []
+weight_of_longest_path' dag (x:xs) f g h = h dag x f g : weight_of_longest_path' dag xs f g h
 
 
 calcCharWeight :: t -> [a1] -> (a1 -> a) -> (t -> a1 -> a1 -> a) -> [a]
