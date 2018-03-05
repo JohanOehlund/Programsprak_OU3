@@ -1,12 +1,12 @@
 public class Edge {
 
-    private Vertex frmVert;
-    private Vertex toVert;
+    private int frmVertID;
+    private int toVertID;
     private Object weight;
 
-    public Edge(Vertex frmVert, Vertex toVert, Object weight) {
-        this.frmVert = frmVert;
-        this.toVert = toVert;
+    public Edge(int frmVertID, int toVertID, Object weight) {
+        this.frmVertID = frmVertID;
+        this.toVertID = toVertID;
         this.weight = weight;
     }
 
@@ -14,11 +14,11 @@ public class Edge {
         return weight;
     }
 
-    public Vertex getFrmVert() {
-        return frmVert;
+    public int getFrmVertID() {
+        return frmVertID;
     }
 
-    public Vertex getToVert() {
-        return toVert;
+    public int getToVertID() {
+        return toVertID;
     }
 }
