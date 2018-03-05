@@ -1,5 +1,5 @@
 --module Stack (Stack, emptySTACK, isEmpty, push, top, pop) where
- {-# LANGUAGE DeriveAnyClass #-}
+import DAG
 
 
 emptySTACK :: Stack a
@@ -8,23 +8,6 @@ push :: a -> Stack a -> Stack a
 top :: Stack a -> a
 pop :: Stack a -> (a,Stack a)
  
-data Vertice a b= V{name::a,
-                    wV::b} deriving (Eq, Ord,Show)
-
-
-data Edge a b=  E {frV::(Vertice a b),
-                   toV::(Vertice a b),
-                    wE::b} deriving (Eq, Ord,Show)
-
-data DAG a = EmptyDAG | DAGImpl [a] deriving (Eq, Show)
-
-emptyDAG :: DAG a
-emptyDAG = EmptyDAG
-
-add_vertex :: (Eq a)=> DAG a-> a ->
-                DAG a
-add_vertex  EmptyDAG v = (DAGImpl [v])
-add_vertex  (DAGImpl a) v = (DAGImpl (v:a))
 
 newtype Stack a = StackImpl [a] deriving(Show, Eq, Ord) -- opaque!
 emptySTACK = StackImpl []
