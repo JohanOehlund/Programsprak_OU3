@@ -15,7 +15,7 @@
 ##############################TEST CODE NUM ####################################
 
 let dag1 = add_vertex empty      1 
-let dag2 = add_vertex (fst dag1) 2 
+let dag2 = add_vertex (fst dag1) 2
 let dag3 = add_vertex (fst dag2) 3 
 let dag4 = add_vertex (fst dag3) 4 
 let dag5 = add_vertex (fst dag4) 5 

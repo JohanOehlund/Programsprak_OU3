@@ -9,8 +9,8 @@
 -- Project for the course Programspråk VT18, Umeå universitet.
 --------------------------------------------------------------------------------
 {-# LANGUAGE FlexibleInstances #-}
-module DAG(Vertex,Edge,DAG,VertID,add_vertex,add_edge,topological_ordering,weight_of_longest_path,empty,
-            vertWT,edgeWT) where
+--module DAG(Vertex,Edge,DAG,VertID,add_vertex,add_edge,topological_ordering,weight_of_longest_path,empty,
+  --          vertWT,edgeWT) where
 
 import Data.Char
 import Data.List
@@ -40,23 +40,31 @@ data DAG a= DAGImpl [Vertex a] [Edge a] deriving (Show)
 
 class (Eq a,Ord a) => CalcWeight a where 
     calcPath :: [Vertex a] -> [Edge a] -> (Vertex a -> a) -> ([Edge a]->Vertex a ->Vertex a -> a) -> [a]
-    longestPath :: [[a]] -> [a]
+    --add :: (Vertex a -> Vertex a -> [a])
+    --getWT :: Vertex a-> [a]
+    --compare' :: (a -> a -> Ordering)
 
 instance (CalcWeight [Char]) where
     calcPath vList eList f g  = [(calcStringWeight vList eList f g)]
-    longestPath list = ((head) (sort list))
+    --longestPath list = ((head) (sort list))
 
 instance CalcWeight Char where
     calcPath vList eList f g  = (calcCharWeight vList eList f g)
-    longestPath list = ((head) (sort list))
+    --longestPath list = ((head) (sort list))
+    --add a1 a2 = [a1] ++ [a2]
+    --getWT a1 = [a1]
+    --compare' a1 a2 = compare a1 a2  
 
 instance CalcWeight Integer where
     calcPath vList eList f g  = [sum (calcIntWeight vList eList f g)]
-    longestPath list = ((last) (sort list))
+    --longestPath list = ((last) (sort list))
+    --add a1 a2 = [a1 + a2]
+    --getWT a1 = [a1] 
+    --compare' a1 a2 = compare a1 a2
 
 instance CalcWeight Double where
     calcPath vList eList f g  = [sum (calcIntWeight vList eList f g)]
-    longestPath list = ((last) (sort list))
+    --longestPath list = ((last) (sort list))
 
 instance (Show a) => Show (Vertex a) where
     show  (V a b)= "(V "++ show a ++ " " ++ show b ++ ")"
@@ -84,6 +92,10 @@ instance (Ord a) => Ord (Edge a) where
     (<)  (E v1 v2 wt1) (E v3 v4 wt2)  = (<)  wt1 wt2
     compare (E v1 v2 wt1) (E v3 v4 wt2)  = compare  wt1 wt2
 -- ##################################################################################################################### 
+
+longestPath :: (Ord a) =>  [[a]] -> [a]
+longestPath list = ((last) (sort list))
+
 
 {-
 Function: empty
@@ -276,3 +288,6 @@ getVertId (V id1 _)= id1
 getEdgeList :: DAG a-> [Edge a]
 getEdgeList (DAGImpl _ e) = e
 -- ##################################################################################################################### 
+
+-- let x = (clrPaths) (getPaths dag13 (V 5 5)  (getNeighbours (V 1 1) (getEdgeList dag13))  [(V 1 1)])
+-- let y = weight_of_longest_path' dag13 x (vertWT) (edgeWT)

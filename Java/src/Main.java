@@ -18,6 +18,12 @@ public class Main {
         int id8 = dag.add_vertex(8);
 
 
+        /*dag.add_vertex(1);
+        dag.add_vertex(2);
+        dag.add_vertex(3);
+        dag.add_vertex(4);*/
+
+
 
         dag.add_edge(1,2,10);
         dag.add_edge(2,4,11);
@@ -26,19 +32,30 @@ public class Main {
         dag.add_edge(1,4,14);
         dag.add_edge(5,3,15);
         dag.add_edge(2,5,16);
+        dag.add_edge(1,6,16);
+
+
+
+        /*dag.add_edge(1,2,10);
+        dag.add_edge(1,3,10);
+        dag.add_edge(2,4,10);*/
+
 
         //dag.add_edge(5,1,16);
+        dag.print_inDegrees();
 
 
-        topList = dag.topologicalSort();
+        //topList = dag.topologicalSort();
 
-        System.out.println("##### TOPSORT #####");
+        /*System.out.println("##### TOPSORT #####");
         for (int i = 0; i < topList.size(); i++) {
             System.out.println(topList.get(i));
         }
         System.out.println("###################");
+        */
+        dag.findPaths(1,6, new ArrayList<>());
 
-        dag.findPaths();
+        dag.print_ret();
 
         //dag.weight_of_longest_path(1, 5, dag.add_vertex(2), dag.add_vertex(4));
 
