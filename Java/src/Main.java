@@ -38,6 +38,8 @@ public class Main {
         }
         System.out.println("###################");
 
+        dag.findPaths();
+
         //dag.weight_of_longest_path(1, 5, dag.add_vertex(2), dag.add_vertex(4));
 
         //dag.print_vertices();

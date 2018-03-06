@@ -54,6 +54,10 @@ instance CalcWeight Integer where
     calcPath vList eList f g  = [sum (calcIntWeight vList eList f g)]
     longestPath list = ((last) (sort list))
 
+instance CalcWeight Double where
+    calcPath vList eList f g  = [sum (calcIntWeight vList eList f g)]
+    longestPath list = ((last) (sort list))
+
 instance (Show a) => Show (Vertex a) where
     show  (V a b)= "(V "++ show a ++ " " ++ show b ++ ")"
 
