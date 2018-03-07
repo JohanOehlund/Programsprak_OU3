@@ -33,6 +33,8 @@ public class Main {
         dag.add_edge(5,3,15);
         dag.add_edge(2,5,16);
         dag.add_edge(1,6,16);
+        //dag.add_edge(5,1,16);
+
 
 
 

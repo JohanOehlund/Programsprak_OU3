@@ -112,7 +112,6 @@ public class DAG {
             path.add(currentID);
             ret.add((ArrayList<Integer>) path.clone());
             path.clear();
-            return;
         }
     }
 
@@ -145,33 +144,48 @@ public class DAG {
     public ArrayList<Integer> topologicalSort() {
 
         ArrayList<Integer> returnList = new ArrayList<>();
-        ArrayList<Integer> copyVerts = new ArrayList<>(vertices);
-        ArrayList<Edge> copyEdges = new ArrayList<>(edges);
+        ArrayList<Integer> copyVerts = (ArrayList<Integer>) vertices.clone();
+        ArrayList<Edge> copyEdges = (ArrayList<Edge>) edges.clone();
+
 
 
         if (!getInDegrees(copyVerts, copyEdges).containsValue(0)) {
             returnList.clear();
-            System.out.println("I if: "+copyEdges.size());
             return returnList;
         }
-        while (inDegrees.size() > 0) {
+        while (!inDegrees.isEmpty()) {
+
+
+            int loops = 0;
+            boolean cycle = true;
             for (Integer vertID : inDegrees.keySet()) {
                 if (inDegrees.get(vertID) == 0) {
+                    cycle = false;
+                    int size = copyEdges.size();
+                    for (int i = 0; i < size; i++) {
+                        Edge e = copyEdges.get(i-loops);
+                        if (e.getFrmVertID() == vertID) {
+                            copyEdges.remove(i-loops);
+                            loops++;
+                        }
+
+                    }
+                    loops=0;
+
                     returnList.add(vertID);
                     copyVerts.remove(vertID);
 
-                    for (int i = 0; i < copyEdges.size(); i++) {
-                        Edge e = copyEdges.get(i);
-                        if (e.getFrmVertID() == vertID) {
-                            copyEdges.remove(i);
-                        }
-                    }
+
                 }
+
+            }
+            if(cycle){
+                returnList.clear();
+                return returnList;
             }
             getInDegrees(copyVerts, copyEdges);
 
         }
-
 
         return returnList;
     }
