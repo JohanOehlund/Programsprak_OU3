@@ -8,64 +8,49 @@ public class Main {
 
         ArrayList<Integer> topList = new ArrayList<>();
         DAG dag = new DAG();
-        int id7 = dag.add_vertex(7);
-        int id1 = dag.add_vertex(1);
-        int id2 = dag.add_vertex(2);
-        int id3 = dag.add_vertex(3);
-        int id4 = dag.add_vertex(4);
-        int id5 = dag.add_vertex(5);
-        int id6 = dag.add_vertex(6);
-        int id8 = dag.add_vertex(8);
+        //###########################INT TEST###################################
+        /*int id1 = dag.add_vertex(new Weight_INT(1));
+        int id2 = dag.add_vertex(new Weight_INT(2));
+        int id3 = dag.add_vertex(new Weight_INT(3));
+        int id4 = dag.add_vertex(new Weight_INT(4));
+        int id5 = dag.add_vertex(new Weight_INT(5));
+        int id6 = dag.add_vertex(new Weight_INT(6));
+        int id7 = dag.add_vertex(new Weight_INT(7));
+        int id8 = dag.add_vertex(new Weight_INT(8));
 
+        dag.add_edge(1,2,new Weight_INT(10));
+        dag.add_edge(2,4,new Weight_INT(11));
+        dag.add_edge(4,5,new Weight_INT(12));
+        dag.add_edge(3,6,new Weight_INT(13));
+        dag.add_edge(1,4,new Weight_INT(14));
+        dag.add_edge(5,3,new Weight_INT(15));
+        dag.add_edge(2,5,new Weight_INT(16));
+        dag.add_edge(1,6,new Weight_INT(17));*/
+        //###########################INT TEST###################################
 
-        /*dag.add_vertex(1);
-        dag.add_vertex(2);
-        dag.add_vertex(3);
-        dag.add_vertex(4);*/
+        //###########################CHAR/STRING TEST###################################
+        int id1 = dag.add_vertex(new Weight_String('a'));
+        int id2 = dag.add_vertex(new Weight_String('b'));
+        int id3 = dag.add_vertex(new Weight_String('c'));
+        int id4 = dag.add_vertex(new Weight_String('d'));
+        int id5 = dag.add_vertex(new Weight_String('e'));
+        int id6 = dag.add_vertex(new Weight_String('f'));
+        int id7 = dag.add_vertex(new Weight_String('g'));
+        int id8 = dag.add_vertex(new Weight_String('h'));
 
+        dag.add_edge(1,2,new Weight_String('i'));
+        dag.add_edge(2,4,new Weight_String('j'));
+        dag.add_edge(4,5,new Weight_String('k'));
+        dag.add_edge(3,6,new Weight_String('l'));
+        dag.add_edge(1,4,new Weight_String('m'));
+        dag.add_edge(5,3,new Weight_String('n'));
+        dag.add_edge(2,5,new Weight_String('o'));
+        dag.add_edge(1,6,new Weight_String('p'));
+        //###########################CHAR/STRING TEST###################################
 
+        dag.weightOfLongestPath(1,5);
 
-        dag.add_edge(1,2,10);
-        dag.add_edge(2,4,11);
-        dag.add_edge(4,5,12);
-        dag.add_edge(3,6,13);
-        dag.add_edge(1,4,14);
-        dag.add_edge(5,3,15);
-        dag.add_edge(2,5,16);
-        dag.add_edge(1,6,16);
-        //dag.add_edge(5,1,16);
-
-
-
-
-        /*dag.add_edge(1,2,10);
-        dag.add_edge(1,3,10);
-        dag.add_edge(2,4,10);*/
-
-
-        //dag.add_edge(5,1,16);
-        dag.print_inDegrees();
-
-
-        //topList = dag.topologicalSort();
-
-        /*System.out.println("##### TOPSORT #####");
-        for (int i = 0; i < topList.size(); i++) {
-            System.out.println(topList.get(i));
-        }
-        System.out.println("###################");
-        */
-        dag.findPaths(1,6, new ArrayList<>());
-
-        dag.print_ret();
-
-        //dag.weight_of_longest_path(1, 5, dag.add_vertex(2), dag.add_vertex(4));
-
-        //dag.print_vertices();
-        //dag.print_edges();
     }
-
-
 
 
 

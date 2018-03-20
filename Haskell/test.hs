@@ -21,3 +21,9 @@ test num item st
     | num > 0 = ((test) (num-1) item (push item st))
     | num < 0 = ((test) (num+1) item (push item st))
     | num== 0 = st
+
+
+addOneList lst = map addOne' lst
+  where addOne' x = x + 1
+
+addOneList' lst = map (\x -> x + 1) lst

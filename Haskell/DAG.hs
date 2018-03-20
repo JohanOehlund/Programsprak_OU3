@@ -9,8 +9,8 @@
 -- Project for the course Programspråk VT18, Umeå universitet.
 --------------------------------------------------------------------------------
 {-# LANGUAGE FlexibleInstances #-}
---module DAG(Vertex,Edge,DAG,VertID,add_vertex,add_edge,topological_ordering,weight_of_longest_path,empty,
-  --          vertWT,edgeWT) where
+module DAG(Vertex,Edge,DAG,VertID,add_vertex,add_edge,topological_ordering,weight_of_longest_path,empty,
+            vertWT,edgeWT) where
 
 import Data.Char
 import Data.List

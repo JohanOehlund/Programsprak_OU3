@@ -1,12 +1,11 @@
-import java.util.ArrayList;
 
 public class Vertex {
 
-    public int identifier;
-    private Object weight;
+    private int identifier;
+    private Weight weight;
 
 
-    public Vertex(Object weight, int identifier) {
+    public Vertex(Weight weight, int identifier) {
         this.identifier = identifier;
         this.weight = weight;
     }
@@ -15,7 +14,7 @@ public class Vertex {
         return identifier;
     }
 
-    public Object getWeight() {
+    public Weight getWeight() {
         return weight;
     }
 

@@ -2,9 +2,9 @@ public class Edge {
 
     private int frmVertID;
     private int toVertID;
-    private Object weight;
+    private Weight weight;
 
-    public Edge(int frmVertID, int toVertID, Object weight) {
+    public Edge(int frmVertID, int toVertID, Weight weight) {
         this.frmVertID = frmVertID;
         this.toVertID = toVertID;
         this.weight = weight;
