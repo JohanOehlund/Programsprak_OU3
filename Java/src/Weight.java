@@ -22,4 +22,13 @@ public class Weight implements WeightInterface, Cloneable {
     public void add(Object wt){
         this.wt=wt;
     }
+
+    @Override
+    public boolean compare(Object wt) {
+        return this.wt.equals(wt);
+    }
+
+    protected Weight clone() throws CloneNotSupportedException {
+        return (Weight) super.clone();
+    }
 }

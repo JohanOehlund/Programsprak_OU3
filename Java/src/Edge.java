@@ -10,7 +10,7 @@ public class Edge {
         this.weight = weight;
     }
 
-    public Object getWeight() {
+    public Weight getWeight() {
         return weight;
     }
 

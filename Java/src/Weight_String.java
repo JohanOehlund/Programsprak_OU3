@@ -21,4 +21,11 @@ public class Weight_String extends Weight{
     public void resetWT() {
         wt="";
     }
+
+    @Override
+    public boolean compare(Object a) {
+
+        String temp = (String) a;
+        return temp.compareTo(wt) >= 0;
+    }
 }

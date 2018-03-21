@@ -8,7 +8,6 @@ public class Weight_INT extends Weight {
     @Override
     public void add(Object a) {
         wt+=(int)a;
-        System.out.println("WT: "+wt);
         super.add(wt);
     }
 
@@ -16,6 +15,11 @@ public class Weight_INT extends Weight {
     public void resetWT() {
         wt=0;
         super.resetWT();
+    }
+
+    @Override
+    public boolean compare(Object a) {
+        return (int)a > wt;
     }
 
 }

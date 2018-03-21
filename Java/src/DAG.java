@@ -1,11 +1,10 @@
+import java.lang.reflect.Method;
 import java.util.*;
-import java.util.concurrent.Callable;
 
 public class DAG {
 
     private int identifier = 1;
     private ArrayList<Vertex> vertices = new ArrayList<>();
-    private ArrayList<Vertex> vertices2 = new ArrayList<>();
     private ArrayList<Edge> edges = new ArrayList<>();
     private HashMap<Integer, Integer> inDegrees = new HashMap<>();
     private ArrayList<ArrayList<Integer>> paths = new ArrayList<>();
@@ -18,9 +17,7 @@ public class DAG {
     public int add_vertex(Weight weight) {
         if (correctType(weight)){
             Vertex newVert = new Vertex(weight, identifier);
-            Vertex newVert2 = new Vertex(weight, -1);
             vertices.add(newVert);
-            vertices2.add(newVert2);
         }else{
             return -1;
         }
@@ -159,36 +156,54 @@ public class DAG {
     }
 
 
-    public Weight weightOfLongestPath(int fromID,int toID){
+    public Weight weightOfLongestPath(int fromID,int toID,Method f,Method g,Object main) throws Exception {
 
         findPaths(fromID,toID,new ArrayList<>());
+        ArrayList<Weight> pathWeights = new ArrayList<>();
         for (ArrayList<Integer> path:paths) {
 
-            //print_vertices();
-            Weight a=Weight.class.cast(vertices2.get(0).getWeight());
-
+            Weight test=Weight.class.cast(vertices.get(0).getWeight());
+            Weight a = test.clone();
             a.resetWT();
-            //print_vertices();
 
-            for (Integer vertID:path) {
+
+            for (int i = 0; i < path.size(); i++) {
+                int vertID = path.get(i);
                 for (Vertex vert:vertices) {
-                    //System.out.println(vert.getWeight().getWT());
                     if (vert.getIdentifier()==vertID){
-                        a.add(vert.getWeight().getWT());
-                        //System.out.println("vert: "+vert.getWeight().getWT());
-                        //System.out.println("wt: "+a.getWT());
+                        a.add(((Weight) f.invoke(main,vert)).getWT());
+
                     }
                 }
-
-
+                if(i < path.size()-1) {
+                    for (Edge e : edges) {
+                        if (e.getToVertID() == path.get(i+1) &&e.getFrmVertID() == vertID) {
+                            a.add(((Weight) g.invoke(main,e)).getWT());
+                        }
+                    }
+                }
             }
+            pathWeights.add(a);
             System.out.println(a.getWT());
-
-
-
-
         }
-        return new Weight_INT(0);
+        return getMaxWeight(pathWeights);
+    }
+
+    private Weight getMaxWeight(ArrayList<Weight> pathWeights) {
+
+        Weight currHighWeight = null;
+
+        for (Weight w:pathWeights) {
+            if (currHighWeight == null) {
+                currHighWeight = w;
+            }
+            else {
+                if(currHighWeight.compare(w.getWT())) {
+                    currHighWeight = w;
+                }
+            }
+        }
+        return currHighWeight;
     }
 
 
