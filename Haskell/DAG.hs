@@ -39,32 +39,29 @@ data DAG a= DAGImpl [Vertex a] [Edge a] deriving (Show)
 --          (directed acyclic graph). The instances includes instance of types (Ord,Show,Eq and CalcWeight). 
 
 class (Eq a,Ord a) => CalcWeight a where 
-    calcPath :: [Vertex a] -> [Edge a] -> (Vertex a -> a) -> ([Edge a]->Vertex a ->Vertex a -> a) -> [a]
-    --add :: (Vertex a -> Vertex a -> [a])
-    --getWT :: Vertex a-> [a]
-    --compare' :: (a -> a -> Ordering)
+    add :: (a -> a -> [a])
+    compare' :: ([a] -> [a]-> Ordering)
+    sum' :: [a] -> [a]
 
 instance (CalcWeight [Char]) where
-    calcPath vList eList f g  = [(calcStringWeight vList eList f g)]
-    --longestPath list = ((head) (sort list))
+    add a1 a2 = [a1 ++ a2]
+    compare' a1 a2 = compare a1 a2
+    sum' list = [concat list]
 
 instance CalcWeight Char where
-    calcPath vList eList f g  = (calcCharWeight vList eList f g)
-    --longestPath list = ((head) (sort list))
-    --add a1 a2 = [a1] ++ [a2]
-    --getWT a1 = [a1]
-    --compare' a1 a2 = compare a1 a2  
+    add a1 a2 = [a1] ++ [a2]
+    compare' a1 a2 = compare a1 a2 
+    sum' list = list
 
 instance CalcWeight Integer where
-    calcPath vList eList f g  = [sum (calcIntWeight vList eList f g)]
-    --longestPath list = ((last) (sort list))
-    --add a1 a2 = [a1 + a2]
-    --getWT a1 = [a1] 
-    --compare' a1 a2 = compare a1 a2
+    add a1 a2 = [(a1 + a2)]
+    compare' a1 a2 = if sum a1 > sum a2 then LT else GT
+    sum' list = [sum list]
 
 instance CalcWeight Double where
-    calcPath vList eList f g  = [sum (calcIntWeight vList eList f g)]
-    --longestPath list = ((last) (sort list))
+    add a1 a2 = [(a1 + a2)]
+    compare' a1 a2 = if sum a1 > sum a2 then LT else GT
+    sum' list = [sum list]
 
 instance (Show a) => Show (Vertex a) where
     show  (V a b)= "(V "++ show a ++ " " ++ show b ++ ")"
@@ -93,8 +90,8 @@ instance (Ord a) => Ord (Edge a) where
     compare (E v1 v2 wt1) (E v3 v4 wt2)  = compare  wt1 wt2
 -- ##################################################################################################################### 
 
-longestPath :: (Ord a) =>  [[a]] -> [a]
-longestPath list = ((last) (sort list))
+longestPath :: (CalcWeight a,Ord a) =>  [[a]] -> [a]
+longestPath list = head((sortBy) (compare') list)
 
 
 {-
@@ -143,19 +140,36 @@ topological_ordering (DAGImpl v e) (x2:xs2) output
 Function: weight_of_longest_path
 Comment: Calculates the longest path between the two selected vertices in the DAG. 
 -}
-weight_of_longest_path dag id1 id2 f g = longestPath ((weight_of_longest_path') dag paths f g)
+weight_of_longest_path :: (CalcWeight a1, Eq a) => DAG a -> VertID -> VertID -> (Vertex a -> a1)
+                                -> ([Edge a] -> Vertex a -> Vertex a -> a1)-> [a1]
+weight_of_longest_path dag id1 id2 f g = (sum' (longestPath(weight_of_longest_path' dag paths f g)))
             where 
                 paths = (clrPaths) (getPaths dag vert2 getNeigh [vert1])
                 vert1 = getVert dag id1
                 vert2 = getVert dag id2
                 getNeigh = getNeighbours vert1 (getEdgeList dag) 
 
+
 {-
 Function: weight_of_longest_path'
-Comment: Help function to weight_of_longest_path that recursive calculates a path between vertices.
+Comment: Help function to weight_of_longest_path that recursive calls weightOfPath to calculate
+        weight of a path. 
 -}
-weight_of_longest_path' dag [] f g = []
-weight_of_longest_path' dag (x:xs) f g = ((calcPath) x (getEdgeList dag) f g) : weight_of_longest_path' dag xs f g
+weight_of_longest_path' :: CalcWeight a => DAG a1 -> [[a2]] -> (a2 -> a) -> ([Edge a1] -> a2 -> a2 -> a) -> [[a]]
+weight_of_longest_path' _ [] _ _ = []
+weight_of_longest_path' dag (x:xs) f g= result : weight_of_longest_path' dag xs f g
+                    where result = weightOfPath dag x f g
+
+{-
+Function: weightOfPath
+Comment: Calculates a path between vertices.
+-}
+weightOfPath :: CalcWeight a => DAG a1 -> [a2] -> (a2 -> a) -> ([Edge a1] -> a2 -> a2 -> a) -> [a]
+weightOfPath dag [] f g = []
+weightOfPath dag (x:[]) f g = [(f x)]
+weightOfPath dag (x:x1:xs) f g = 
+    ((add) (f x)  (g (getEdgeList dag) x x1)) 
+                            ++ weightOfPath dag (x1:xs) f g
 
 {-
 Function: calcCharWeight
