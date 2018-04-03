@@ -299,9 +299,10 @@ getToVert (E _ v2 _) = v2
 getVertId :: (Vertex a) -> Integer
 getVertId (V id1 _)= id1
 
+getVertList :: DAG a-> [Vertex a]
+getVertList (DAGImpl v _) = v
+
 getEdgeList :: DAG a-> [Edge a]
 getEdgeList (DAGImpl _ e) = e
--- ##################################################################################################################### 
 
--- let x = (clrPaths) (getPaths dag13 (V 5 5)  (getNeighbours (V 1 1) (getEdgeList dag13))  [(V 1 1)])
--- let y = weight_of_longest_path' dag13 x (vertWT) (edgeWT)
+-- ##################################################################################################################### 

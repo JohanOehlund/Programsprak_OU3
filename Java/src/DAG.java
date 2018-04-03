@@ -171,7 +171,6 @@ public class DAG {
                 }
             }
             pathWeights.add(a);
-            System.out.println(a.getWT());
         }
         return getMaxWeight(pathWeights);
     }
