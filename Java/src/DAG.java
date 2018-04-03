@@ -35,7 +35,7 @@ public class DAG {
                 newEdge.getFrmVertID() > 0 && newEdge.getToVertID() > 0) {
 
             edges.add(newEdge);
-            if (topologicalSort().isEmpty()) {
+            if (topological_ordering().isEmpty()) {
                 System.err.println("Cannot add egde from " + frmVertID + " to "
                         + toVertID + " because it creates a cycle!");
                 edges.remove(newEdge);
@@ -66,7 +66,7 @@ public class DAG {
 
 
 
-    public HashMap<Integer, Integer> getInDegrees(ArrayList<Vertex> vertices, ArrayList<Edge> edges) {
+    private void getInDegrees(ArrayList<Vertex> vertices, ArrayList<Edge> edges) {
 
         inDegrees.clear();
 
@@ -82,11 +82,7 @@ public class DAG {
             }
             inDegrees.put(tempID, tempIn);
         }
-
-        return inDegrees;
     }
-
-
 
     public ArrayList<ArrayList<Integer>> getPaths() {
         return paths;
@@ -103,20 +99,15 @@ public class DAG {
         }
     }
 
-    public ArrayList<Integer> topologicalSort() {
+    public ArrayList<Integer> topological_ordering() {
 
         ArrayList<Integer> returnList = new ArrayList<>();
         ArrayList<Vertex> copyVerts = (ArrayList<Vertex>) vertices.clone();
         ArrayList<Edge> copyEdges = (ArrayList<Edge>) edges.clone();
 
+        getInDegrees(copyVerts, copyEdges);
 
-
-        if (!getInDegrees(copyVerts, copyEdges).containsValue(0)) {
-            returnList.clear();
-            return returnList;
-        }
         while (!inDegrees.isEmpty()) {
-
 
             int loops = 0;
             boolean cycle = true;
@@ -130,28 +121,24 @@ public class DAG {
                             copyEdges.remove(i-loops);
                             loops++;
                         }
-
                     }
-                    loops=0;
 
+                    loops=0;
                     returnList.add(vertID);
+
                     for (int i=0;i<copyVerts.size();i++) {
                         Vertex tempV=copyVerts.get(i);
                         if (tempV.getIdentifier()==vertID)
                             copyVerts.remove(i);
                     }
-
                 }
-
             }
             if(cycle){
                 returnList.clear();
                 return returnList;
             }
             getInDegrees(copyVerts, copyEdges);
-
         }
-
         return returnList;
     }
 
