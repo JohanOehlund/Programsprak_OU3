@@ -1,3 +1,9 @@
+/**
+ * Author: Arvid, Johan
+ * File: Vertex.java
+ * Created: 18-03-01
+ * Description: A weighted vertex.
+ */
 
 public class Vertex {
 

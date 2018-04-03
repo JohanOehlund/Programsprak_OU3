@@ -1,6 +1,13 @@
 import java.lang.reflect.Method;
 import java.util.*;
 
+/**
+ * Author: Arvid, Johan
+ * File: DAG.java
+ * Created: 18-03-01
+ * Description: A weighted directed acyclic graph(DAG) where weights can be polymorphic.
+ */
+
 public class DAG {
 
     private int identifier = 1;
@@ -14,6 +21,14 @@ public class DAG {
 
     }
 
+    /**
+     * Adds a vertex to the DAG. If it's the first vertex to be adden any weight-type
+     * is accepted, otherwise the weight needs to be of the same type as other
+     * weights in the DAG.
+     * @param weight The weight of the vertex that is to be added.
+     * @return A unique identifier for each vertex as an int.
+     */
+
     public int add_vertex(Weight weight) {
         if (correctType(weight)){
             Vertex newVert = new Vertex(weight, identifier);
@@ -24,6 +39,14 @@ public class DAG {
 
         return identifier++;
     }
+
+    /**
+     * Adds an edge between two vertices in the DAG. The weight must be of the same
+     * type as the other weights in the DAG.
+     * @param frmVertID The ID of the vertex where the edge starts.
+     * @param toVertID The ID of the vertex where the edge ends.
+     * @param weight The weight of the edge that is to be added.
+     */
 
     public void add_edge(int frmVertID, int toVertID, Weight weight) {
         if (!correctType(weight)){
@@ -47,6 +70,13 @@ public class DAG {
 
     }
 
+    /**
+     * Check if a weight is the same type as the other weights in the DAG.
+     * @param weight The weight that is checked.
+     * @return True if the weight is the same type as the other weights
+     * otherwise false.
+     */
+
     private boolean correctType(Weight weight){
         for (Vertex vert:vertices) {
             if(vert.getWeight().getClass()!=weight.getClass()){
@@ -63,8 +93,14 @@ public class DAG {
         return true;
     }
 
-
-
+    /**
+     * Adds each vertex and its indegree to a HashMap. Indegree is the number of
+     * incoming edges to the vertex.
+     * @param vertices A list of vertices for which indegree should be
+     * calculated.
+     * @param edges A list of edges used to calculating the indegrees of
+     * vertices.
+     */
 
     private void getInDegrees(ArrayList<Vertex> vertices, ArrayList<Edge> edges) {
 
@@ -84,20 +120,12 @@ public class DAG {
         }
     }
 
-    public ArrayList<ArrayList<Integer>> getPaths() {
-        return paths;
-    }
+    /**
+     * Finds a topological ordering of the vertices in the DAG.
+     * @return A list of a topological ordering of vertices identifiers, the
+     * list is empty is the DAG is cyclic or contains no vertices.
+     */
 
-    public void print_paths() {
-        for (int i = 0; i < paths.size(); i++) {
-
-            ArrayList<Integer> temp = paths.get(i);
-            for (int j = 0; j < temp.size() ; j++) {
-                System.out.println("ID: "+temp.get(j));
-            }
-            System.out.println("");
-        }
-    }
 
     public ArrayList<Integer> topological_ordering() {
 
@@ -142,6 +170,19 @@ public class DAG {
         return returnList;
     }
 
+    /**
+     * Finds the weight of the longest path between two nodes.
+     * @param fromID The ID of the vertex where the path starts.
+     * @param toID The ID of the vertex where the path ends.
+     * @param f A method used to get the weight from a vertex.
+     * @param g A method used to get the weight from an edge.
+     * @param main An instance of the calling class where the methods f and g
+     * are declared.
+     * @return The weight of the longest path.
+     * @throws Exception If anything goes wrong when invoking the methods f and
+     * g or when casting the class of weight.
+     */
+
 
     public Weight weightOfLongestPath(int fromID,int toID,Method f,Method g,Object main) throws Exception {
 
@@ -175,23 +216,12 @@ public class DAG {
         return getMaxWeight(pathWeights);
     }
 
-    private Weight getMaxWeight(ArrayList<Weight> pathWeights) {
-
-        Weight currHighWeight = null;
-
-        for (Weight w:pathWeights) {
-            if (currHighWeight == null) {
-                currHighWeight = w;
-            }
-            else {
-                if(currHighWeight.compare(w.getWT())) {
-                    currHighWeight = w;
-                }
-            }
-        }
-        return currHighWeight;
-    }
-
+    /**
+     * Finds all paths between two nodes and saves them in a list.
+     * @param currentID The ID of the vertex the method is currently working on.
+     * @param toID The ID of the vertex where the path ends.
+     * @param path A possible path between two nodes.
+     */
 
     public void findPaths(int currentID, int toID, ArrayList<Integer> path) {
 
@@ -215,6 +245,37 @@ public class DAG {
             path.clear();
         }
     }
+
+    /**
+     * Finds the highest weight in a list of weights.
+     * @param pathWeights A list of weights.
+     * @return The highest weight.
+     */
+
+    private Weight getMaxWeight(ArrayList<Weight> pathWeights) {
+
+        Weight currHighWeight = null;
+
+        for (Weight w:pathWeights) {
+            if (currHighWeight == null) {
+                currHighWeight = w;
+            }
+            else {
+                if(currHighWeight.compare(w.getWT())) {
+                    currHighWeight = w;
+                }
+            }
+        }
+        return currHighWeight;
+    }
+
+    /**
+     * Finds the neighbours of a vertex based on the vertex ID.
+     * @param id The ID of the vertex whose neighbours is to be found.
+     * @return A list of IDs for the vertices neighbouring the vertex whose ID
+     * is a parameter to the method.
+     */
+
 
     public ArrayList<Integer> getNeighbours(int id) {
 
@@ -244,6 +305,21 @@ public class DAG {
             System.out.println("From: " + edges.get(i).getFrmVertID() + " To: " + edges.get(i).getToVertID() + " Weight: " +
                     edges.get(i).getWeight());
         }
+    }
+
+    public void print_paths() {
+        for (int i = 0; i < paths.size(); i++) {
+
+            ArrayList<Integer> temp = paths.get(i);
+            for (int j = 0; j < temp.size() ; j++) {
+                System.out.println("ID: "+temp.get(j));
+            }
+            System.out.println("");
+        }
+    }
+
+    public ArrayList<ArrayList<Integer>> getPaths() {
+        return paths;
     }
 
     public ArrayList<Vertex> getVertices() {

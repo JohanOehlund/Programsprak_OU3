@@ -1,3 +1,7 @@
+/**
+ * A class for handling weights of the type int.
+ */
+
 public class Weight_INT extends Weight {
     private int wt;
     public Weight_INT(Object wt) {

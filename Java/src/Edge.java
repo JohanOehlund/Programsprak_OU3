@@ -1,3 +1,10 @@
+/**
+ * Author: Arvid, Johan
+ * File: Edge.java
+ * Created: 18-03-01
+ * Description: A weighted edge between two vertice-IDs.
+ */
+
 public class Edge {
 
     private int frmVertID;

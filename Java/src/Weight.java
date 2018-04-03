@@ -1,11 +1,11 @@
-public class Weight implements WeightInterface, Cloneable {
+/**
+ * A class that defines the behaviour of other weight classes.
+ */
+
+public abstract class Weight implements WeightInterface, Cloneable {
     public Object wt;
     public Weight(){
 
-    }
-
-    public Weight(Object wt){
-        this.wt=wt;
     }
 
     @Override

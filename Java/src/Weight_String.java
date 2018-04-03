@@ -1,3 +1,8 @@
+/**
+ * A class for handling weights of the type string or char.
+ */
+
+
 public class Weight_String extends Weight{
 
     private String wt;

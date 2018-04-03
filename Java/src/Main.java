@@ -1,5 +1,12 @@
 import java.lang.reflect.Method;
 
+/**
+ * Author: Arvid, Johan
+ * File: DAG.java
+ * Created: 18-03-01
+ * Description: The class that creates the DAG.
+ */
+
 public class Main {
 
 
@@ -47,26 +54,6 @@ public class Main {
         dag.add_edge(id1,id6,new Weight_String('p'));*/
         //###########################CHAR/STRING TEST###################################
 
-
-        //###########################CHAR/STRING TEST###################################
-        /*int id1 = dag.add_vertex(new Weight_Tuple(new Tuple(1,"a")));
-        int id2 = dag.add_vertex(new Weight_Tuple(new Tuple(2,"b")));
-        int id3 = dag.add_vertex(new Weight_Tuple(new Tuple(3,"c")));
-        int id4 = dag.add_vertex(new Weight_Tuple(new Tuple(4,"d")));
-        int id5 = dag.add_vertex(new Weight_Tuple(new Tuple(5,"e")));
-        int id6 = dag.add_vertex(new Weight_Tuple(new Tuple(6,"f")));
-        int id7 = dag.add_vertex(new Weight_Tuple(new Tuple(7,"g")));
-        int id8 = dag.add_vertex(new Weight_Tuple(new Tuple(8,"h")));
-
-        dag.add_edge(id1,id2,new Weight_Tuple(new Tuple(10,"i")));
-        dag.add_edge(id2,id4,new Weight_Tuple(new Tuple(11,"j")));
-        dag.add_edge(id4,id5,new Weight_Tuple(new Tuple(12,"k")));
-        dag.add_edge(id3,id6,new Weight_Tuple(new Tuple(13,"l")));
-        dag.add_edge(id1,id4,new Weight_Tuple(new Tuple(14,"m")));
-        dag.add_edge(id5,id3,new Weight_Tuple(new Tuple(15,"n")));
-        dag.add_edge(id2,id5,new Weight_Tuple(new Tuple(16,"o")));
-        dag.add_edge(id1,id6,new Weight_Tuple(new Tuple(17,"p")));*/
-        //###########################CHAR/STRING TEST###################################
 
 
         try {
