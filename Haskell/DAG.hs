@@ -39,24 +39,20 @@ data DAG a= DAGImpl [Vertex a] [Edge a] deriving (Show)
 --          (directed acyclic graph). The instances includes instance of types (Ord,Show,Eq and CalcWeight). 
 
 class (Eq a,Ord a) => CalcWeight a where 
-    add :: (a -> a -> [a])
-    sum' :: [a] -> [a]
+    add :: (a -> a -> a)
+    sum' :: [a] -> a
 
 instance (CalcWeight [Char]) where
-    add a1 a2 = [a1 ++ a2]
-    sum' list = [concat list]
-
-instance CalcWeight Char where
-    add a1 a2 = [a1] ++ [a2]
-    sum' list = list
+    add a1 a2 = a1 ++ a2
+    sum' list = concat list
 
 instance CalcWeight Integer where
-    add a1 a2 = [(a1 + a2)]
-    sum' list = [sum list]
+    add a1 a2 = (a1 + a2)
+    sum' list = sum list
 
 instance CalcWeight Double where
-    add a1 a2 = [(a1 + a2)]
-    sum' list = [sum list]
+    add a1 a2 = (a1 + a2)
+    sum' list = sum list
 
 instance (Eq a) => Eq (Vertex a) where
     (==) (V a1 b1) (V a2 b2)= (a1 == a2)
@@ -89,7 +85,7 @@ instance (Show a) => Show (Edge a) where
 Function: longestPath
 Comment: Calculate the longest path of all possible paths.
 -}
-longestPath :: (CalcWeight a) =>  [[a]] -> [a]
+longestPath :: (CalcWeight a) =>  [a] -> a
 longestPath list = last((sortBy) (compare) list)
 
 {-
@@ -145,8 +141,7 @@ topological_ordering' (DAGImpl v e) (x2:xs2) output
 Function: weight_of_longest_path
 Comment: Calculates the longest path between the two selected vertices in the DAG. 
 -}
-weight_of_longest_path :: (CalcWeight a) => DAG a -> VertID -> VertID ->
-                                                    (a -> a) -> (a -> a) -> [a]
+weight_of_longest_path :: CalcWeight a => DAG a -> VertID -> VertID -> (a -> a) -> (a -> a) -> a
 weight_of_longest_path dag id1 id2 f g = (longestPath(weight_of_longest_path' dag paths f g))
             where 
                 paths = (clrPaths) (getPaths dag vert2 getNeigh [vert1])
@@ -159,7 +154,7 @@ Function: weight_of_longest_path'
 Comment: Help function to weight_of_longest_path that recursive calls weightOfPath to calculate
         weight of a path. 
 -}
-weight_of_longest_path' :: (CalcWeight a) => DAG a -> [[Vertex a]] -> (a -> a) -> (a -> a) -> [[a]]
+weight_of_longest_path' :: (CalcWeight a) => DAG a -> [[Vertex a]] -> (a -> a) -> (a -> a) -> [a]
 weight_of_longest_path' _ [] _ _ = []
 weight_of_longest_path' dag (x:xs) f g= sum' result : weight_of_longest_path' dag xs f g
                     where result = weightOfPath dag x f g
@@ -172,7 +167,7 @@ weightOfPath :: (CalcWeight a) => DAG a -> [Vertex a] -> (a -> a) -> (a -> a) ->
 weightOfPath dag ((V _ wt):[]) f g = [(f wt)]
 weightOfPath dag ((V i1 wt1):(V i2 wt2):xs) f g = 
                 ((add) (f wt1) (g edgeWeight)) 
-                        ++ weightOfPath dag ((V i2 wt2):xs) f g
+                        : weightOfPath dag ((V i2 wt2):xs) f g
                 where edgeWeight = (getEdgeWT) $ (getEdge) dag (V i1 wt1) (V i2 wt2)
 {-
 Function: isToEdge

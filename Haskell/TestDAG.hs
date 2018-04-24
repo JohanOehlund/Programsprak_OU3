@@ -35,20 +35,20 @@ let x = weight_of_longest_path dag13 1 5 (vertWT) (edgeWT)
 
 ##############################TEST CODE Char####################################
 
-let dag1 = add_vertex empty      'a' 
-let dag2 = add_vertex (fst dag1) 'd' 
-let dag3 = add_vertex (fst dag2) 'z' 
-let dag4 = add_vertex (fst dag3) 'h' 
-let dag5 = add_vertex (fst dag4) 'q' 
-let dag6 = add_vertex (fst dag5) 'j' 
+let dag1 = add_vertex empty      "a" 
+let dag2 = add_vertex (fst dag1) "d" 
+let dag3 = add_vertex (fst dag2) "z" 
+let dag4 = add_vertex (fst dag3) "h" 
+let dag5 = add_vertex (fst dag4) "q" 
+let dag6 = add_vertex (fst dag5) "j" 
 
-let dag7  =  add_edge (fst dag6)  (snd dag1) (snd dag2) '1'
-let dag8  =  add_edge      dag7   (snd dag2) (snd dag4) 'c'
-let dag9  =  add_edge      dag8   (snd dag4) (snd dag5) 'a'
-let dag10 =  add_edge      dag9   (snd dag3) (snd dag6) 'A'
-let dag11 =  add_edge      dag10  (snd dag1) (snd dag4) 'V'
-let dag12 =  add_edge      dag11  (snd dag5) (snd dag3) 'u'
-let dag13 =  add_edge      dag12  (snd dag2) (snd dag5) 'm'
+let dag7  =  add_edge (fst dag6)  (snd dag1) (snd dag2) "1"
+let dag8  =  add_edge      dag7   (snd dag2) (snd dag4) "c"
+let dag9  =  add_edge      dag8   (snd dag4) (snd dag5) "a"
+let dag10 =  add_edge      dag9   (snd dag3) (snd dag6) "A"
+let dag11 =  add_edge      dag10  (snd dag1) (snd dag4) "V"
+let dag12 =  add_edge      dag11  (snd dag5) (snd dag3) "u"
+let dag13 =  add_edge      dag12  (snd dag2) (snd dag5) "m"
 
 let x = weight_of_longest_path dag13 1 5 (vertWT) (edgeWT)
 
