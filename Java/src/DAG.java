@@ -223,7 +223,7 @@ public class DAG {
      * @param path A possible path between two nodes.
      */
 
-    public void findPaths(int currentID, int toID, ArrayList<Integer> path) {
+    private void findPaths(int currentID, int toID, ArrayList<Integer> path) {
 
         ArrayList<Integer> neighbours = getNeighbours(currentID);
 
@@ -277,7 +277,7 @@ public class DAG {
      */
 
 
-    public ArrayList<Integer> getNeighbours(int id) {
+    private ArrayList<Integer> getNeighbours(int id) {
 
         ArrayList<Integer> neighbours = new ArrayList<>();
         for (Edge e:edges) {
@@ -289,7 +289,7 @@ public class DAG {
     }
 
 
-    public void print_inDegrees() {
+    private void print_inDegrees() {
         inDegrees.forEach((k, v) -> System.out.println("VertID: " + k + " Deg: " + v));
     }
 
@@ -307,7 +307,7 @@ public class DAG {
         }
     }
 
-    public void print_paths() {
+    private void print_paths() {
         for (int i = 0; i < paths.size(); i++) {
 
             ArrayList<Integer> temp = paths.get(i);
