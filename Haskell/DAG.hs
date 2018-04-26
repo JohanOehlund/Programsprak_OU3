@@ -86,6 +86,7 @@ Function: longestPath
 Comment: Calculate the longest path of all possible paths.
 -}
 longestPath :: (CalcWeight a) =>  [a] -> a
+longestPath [] = error "No possible path found."
 longestPath list = last((sortBy) (compare) list)
 
 {-
